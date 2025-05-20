@@ -2,6 +2,7 @@
 
 An AI-powered OCR (Optical Character Recognition) system designed to digitize historical and regional language manuscripts with real-time retraining, live monitoring dashboard, model versioning, and self-learning capabilities — fully powered on Raspberry Pi.
 
+
 ---
 
 ## 📸 Project Highlights
