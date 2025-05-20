@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OCR-AI Monitoring Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #0D1117;
+      color: #E6EDF3;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      padding: 1rem;
+      background-color: #161B22;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border-bottom: 2px solid #30363D;
+      position: relative;
+    }
+    #clock {
+      position: absolute;
+      top: 1rem;
+      right: 2rem;
+      font-size: 0.9rem;
+      color: #8B949E;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+    .card {
+      background-color: #161B22;
+      padding: 1.2rem;
+      border: 1px solid #30363D;
+      border-radius: 0.75rem;
+    }
+    .card h2 {
+      margin: 0 0 0.8rem 0;
+      font-size: 1.2rem;
+      color: #58A6FF;
+    }
+    .card pre {
+      background-color: #0D1117;
+      padding: 1rem;
+      border: 1px solid #30363D;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      max-height: 300px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 0.4rem;
+      cursor: pointer;
+      background-color: #238636;
+      color: white;
+    }
+    #statusPanel {
+      font-weight: bold;
+      font-size: 1rem;
+      color: #58A6FF;
+      margin-bottom: 1rem;
+    }
+    select {
+      padding: 0.4rem;
+      border-radius: 0.3rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    canvas {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    📊 OCR-AI Monitoring Dashboard
+    <div id="clock">--:--:--</div>
+  </header>
+  <div class="container">
+    <div class="card">
+      <h2>🧠 Current Model Version</h2>
+      <div id="modelVersion">Loading...</div>
+      <select id="modelSelector"></select>
+      <button onclick="fetchModelList()">🔁 Reload Models</button>
+    </div>
+    <div class="card">
+      <h2>📈 Latest Retrain Logs</h2>
+      <pre id="logViewer">Loading...</pre>
+      <div id="statusPanel">Status: Unknown</div>
+    </div>
+    <div class="card">
+      <h2>📉 CER Trend</h2>
+      <canvas id="cerChart" height="150"></canvas>
+    </div>
+    <div class="card">
+      <h2>📊 OCR Accuracy</h2>
+      <canvas id="ocrChart" height="150"></canvas>
+    </div>
+  </div>
+
+  <script>
+    let cerChart, ocrChart;
+
+    async function fetchModel() {
+      const res = await fetch('/model-version');
+      const txt = await res.text();
+      document.getElementById('modelVersion').innerText = txt;
+    }
+
+    async function fetchModelList() {
+      const res = await fetch('/model-list');
+      const list = await res.json();
+      const sel = document.getElementById('modelSelector');
+      sel.innerHTML = list.map(m => `<option>${m}</option>`).join("");
+    }
+
+    async function fetchLogs() {
+      const res = await fetch('/latest-logs');
+      const txt = await res.text();
+      document.getElementById('logViewer').innerText = txt;
+    }
+
+    async function fetchStatus() {
+      const res = await fetch('/status');
+      const txt = await res.text();
+      document.getElementById('statusPanel').innerText = `Status: ${txt}`;
+    }
+
+    async function fetchCER() {
+      const res = await fetch('/cer-graph');
+      const data = await res.json();
+      const labels = data.map(d => d.time.split(" ")[1]);
+      const values = data.map(d => d.cer);
+      if (!cerChart) {
+        cerChart = new Chart(document.getElementById("cerChart"), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{ label: 'CER', data: values, borderColor: "#FF6384", tension: 0.3 }]
+          },
+          options: { scales: { y: { beginAtZero: true } } }
+        });
+      } else {
+        cerChart.data.labels = labels;
+        cerChart.data.datasets[0].data = values;
+        cerChart.update();
+      }
+    }
+
+    async function fetchOCRStats() {
+      const res = await fetch('/ocr-stats');
+      const data = await res.json();
+      const labels = data.map(d => d.timestamp.split(" ")[1]);
+      const values = data.map(d => (d.accuracy * 100).toFixed(1));
+      if (!ocrChart) {
+        ocrChart = new Chart(document.getElementById("ocrChart"), {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{ label: 'Accuracy (%)', data: values, backgroundColor: "#36A2EB" }]
+          },
+          options: { scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+      } else {
+        ocrChart.data.labels = labels;
+        ocrChart.data.datasets[0].data = values;
+        ocrChart.update();
+      }
+    }
+
+    function updateClock() {
+      document.getElementById("clock").innerText = new Date().toLocaleTimeString();
+    }
+
+    function refreshAll() {
+      fetchModel();
+      fetchLogs();
+      fetchStatus();
+      fetchModelList();
+      fetchCER();
+      fetchOCRStats();
+      updateClock();
+    }
+
+    setInterval(refreshAll, 10000);
+    window.onload = refreshAll;
+  </script>
+</body>
+</html>

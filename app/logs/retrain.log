@@ -1,0 +1,6 @@
+[2025-05-20 13:44:42] Model: v2.5 | CER: 0.13 -> 0.07 | Corrections: 3
+[2025-05-20 14:00:18] Model: v2.6 | CER: 0.12 -> 0.09 | Corrections: 3
+[2025-05-20 14:01:18] Model: v2.7 | CER: 0.12 -> 0.08 | Corrections: 3
+[2025-05-20 14:01:58] Model: v2.8 | CER: 0.13 -> 0.08 | Corrections: 3
+[2025-05-20 14:02:58] Model: v2.9 | CER: 0.13 -> 0.07 | Corrections: 3
+[2025-05-20 14:26:11] Model: v2.10 | CER: 0.15 -> 0.13 | Corrections: 3\n[2025-05-20 14:27:12] Model: v2.11 | CER: 0.13 -> 0.1 | Corrections: 3\n[2025-05-20 14:27:54] Model: v2.12 | CER: 0.11 -> 0.08 | Corrections: 3\n[2025-05-20 14:28:56] Model: v2.13 | CER: 0.12 -> 0.1 | Corrections: 3\n
