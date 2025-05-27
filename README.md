@@ -137,7 +137,7 @@ http://127.0.0.1:8000/dashboard
 
 ## 🙏 Credits
 
-- Developed by: `Your Name`
+- Developed by: `Aro`
 - Inspired by Tesseract, PyTorch pipelines, and embedded AI practices
 
 ---
